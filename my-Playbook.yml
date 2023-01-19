@@ -1,0 +1,63 @@
+---
+## - name: Play 1 ping module demo
+##  hosts: all
+##  become: false
+##  tasks:
+##    - name: test connection
+##      ansible.builtin.ping:
+
+- name: Play 1 to configure apache on amazon linux clients
+  hosts: amazon-linux-clients
+  tasks: # configuring apache web server
+    - name: updating software package # yum update -y
+      yum:
+        name: '*'
+        state: latest
+    - name: Install the latest version of Apache # yum install -y httpd
+      yum:
+        name: httpd
+        state: latest
+    - name: Start service httpd, if not started # systemctl start httpd
+      service:
+        name: httpd
+        state: started
+    - name: Enable service httpd, and not touch the state # systemctl enable httpd
+      service:
+        name: httpd
+        enabled: yes
+    - name: Copy file with owner and permissions
+      copy:
+        src: /root/playbook/amazon-index.html
+        dest: /var/www/html/index.html
+
+- name: Play 2 to configure apache on Ubuntu clients
+  hosts: ubuntu-clients
+  tasks:
+    - name: updating software package # apt update -y
+      apt:
+        name: "*"
+        state: latest
+    - name: Install the latest version of Apache # apt install -y httpd
+      apt:
+        name: apache2
+        state: present
+    - name: Start service apache2, if not started # systemctl start httpd
+      service:
+        name: apache2
+        state: started
+    - name: Enable service apache2, and not touch the state # systemctl enable httpd
+      service:
+        name: apache2
+        enabled: yes
+    - name: Copy file from control node to the ubuntu client server
+      copy:
+        src: /root/playbook/ubuntu-index.html
+        dest: /var/www/html/index.html
+
+- name: Play 3 install git on both the linux and ubuntu servers
+  hosts: all
+  tasks:
+    - name: Install the latest git on all the servers # yum install -y git
+      yum:
+        name: git
+        state: present
